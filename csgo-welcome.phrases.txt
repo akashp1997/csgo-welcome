@@ -1,0 +1,47 @@
+"Phrases"
+{
+	"Line1"
+	{
+		"#format"		"{1:s}{2:s}"
+		"en"			"Welcome To {1} CS:GO Servers {2}!"
+	}
+	"CLine1"
+	{
+		"#format"		"{1:s}{2:s}{3:s}{4:s}{5:s}"
+		"en"			"\{{1}\}Welcome To \{{2}\}{3}\{{1}\} CS:GO Servers \{{4}\}{5}\{{1}\}!{default}"
+	}
+	"Line2"
+	{
+		"#format"		"{1:s}"
+		"en"			"Visit: {1}"
+	}
+	"CLine2"
+	{
+		"#format"		"{1:s}{2:s}{3:s}"
+		"en"			"\{{1}\}Visit: \{{2}\}{3}{default}"
+	}
+	"Rules1"
+	{
+		"en"			"Rules |  Toxicity is strictly prohibited."
+	}
+	"Rules2"
+	{
+		"en"			"If somebody was found using Walls/Aimbot/Spinbot will be permanently banned."
+	}
+	"Rules3"
+	{
+		"en"			"Griefing is not allowed and might get you instant ban for 7 days or more."
+	}
+	"VIPLine"
+	{
+		"en"			"VIP | Visit: www.fegaming.xyz or vip.fegaming.xyz  For VIP Subscription"
+	}
+	"Discord"
+	{
+		"en"			"DISCORD | Visit: www.fegaming.xyz/discord"
+	}
+	"Bonus"
+	{
+		"en"			"GET Bonus | Link your account in discord Type  !link"
+	}
+}
