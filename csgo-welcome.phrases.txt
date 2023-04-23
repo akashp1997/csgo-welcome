@@ -1,24 +1,19 @@
 "Phrases"
 {
-	"Line1"
+    "Separator"
+    {
+        "#format"       "{1:s}"
+        "en"            "{{1}}--------------------------------------------------------------------------"
+    }
+	"Welcome_Line"
 	{
-		"#format"		"{1:s}{2:s}"
-		"en"			"Welcome To {1} CS:GO Servers {2}!"
+		"#format"		"{1:s}{2:s}{3:s}{4:s}{5:s}{6:s}{7:s}"
+		"en"			"{{1}}Welcome To {{2}}{3}{{4}} CS:GO Servers {{5}}{6}{{7}}!"
 	}
-	"CLine1"
-	{
-		"#format"		"{1:s}{2:s}{3:s}{4:s}{5:s}"
-		"en"			"\{{1}\}Welcome To \{{2}\}{3}\{{1}\} CS:GO Servers \{{4}\}{5}\{{1}\}!{default}"
-	}
-	"Line2"
-	{
-		"#format"		"{1:s}"
-		"en"			"Visit: {1}"
-	}
-	"CLine2"
+	"Visit_Line"
 	{
 		"#format"		"{1:s}{2:s}{3:s}"
-		"en"			"\{{1}\}Visit: \{{2}\}{3}{default}"
+		"en"			"{1}Visit: {2}{3}"
 	}
 	"Rules1"
 	{

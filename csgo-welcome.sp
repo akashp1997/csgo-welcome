@@ -1,6 +1,7 @@
 //Sourcemod Includes
 #include <sourcemod>
-#include <multicolors>
+#include <chat-processor>
+#include <colorvariables>
 
 //Pragma
 #pragma semicolon 1
@@ -9,18 +10,20 @@
 //Globals
 bool g_bMessagesShown[MAXPLAYERS + 1];
 
-ConVar textColor;
-ConVar separatorColor;
-ConVar linkTextColor;
-ConVar serverNameTextColor;
-ConVar playerNameTextColor;
+ConVar g_cTextColor;
+ConVar g_cSeparatorColor;
+ConVar g_cLinkTextColor;
+ConVar g_cServerNameTextColor;
+ConVar g_cPlayerNameTextColor;
 
-ConVar serverDisplayName;
-ConVar serverLink;
-ConVar websiteLink;
-ConVar feedbackLink;
+ConVar g_cServerDisplayName;
+ConVar g_cServerLink;
+ConVar g_cWebsiteLink;
+ConVar g_cFeedbackLink;
 
-static char separator[] = "--------------------------------------------------------------------------";
+char serverLink[128];
+char websiteLink[128];
+char feedbackLink[128];
 
 public Plugin myinfo = 
 {
@@ -33,30 +36,21 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	ConVar g_cServerDisplayName = CreateConVar("sv_displayname", "", "Name of the CS:GO server");
+	g_cServerDisplayName = CreateConVar("sm_hostname", "", "Name of the CS:GO server");
 
-	ConVar g_cTextColor = CreateConVar("sm_msg_text_color", "white", "The color name for the base text");
-	ConVar g_cSeparatorColor = CreateConVar("sm_msg_separator_color", "white", "The color name for the separator");
-	ConVar g_cLinkTextColor = CreateConVar("sm_msg_link_text_color", "blue", "The color name for the link text");
+	g_cTextColor = CreateConVar("sm_msg_text_color", "default", "The color name for the base text");
+	g_cSeparatorColor = CreateConVar("sm_msg_separator_color", "grey2", "The color name for the separator");
+	g_cLinkTextColor = CreateConVar("sm_msg_link_text_color", "blue", "The color name for the link text");
 
-	ConVar g_cServerNameTextColor = CreateConVar("sm_msg_server_name_text_color", "green", "The color name for the server name text");
-	ConVar g_cPlayerNameTextColor = CreateConVar("sm_msg_player_name_text_color", "red", "The color name for the player name text");
+	g_cServerNameTextColor = CreateConVar("sm_msg_server_name_text_color", "green", "The color name for the server name text");
+	g_cPlayerNameTextColor = CreateConVar("sm_msg_player_name_text_color", "red", "The color name for the player name text");
 
-	ConVar g_cServerLink = CreateConVar("sm_msg_server", "", "URL to your CS:GO server");
-	ConVar g_cWebsiteLink = CreateConVar("sm_msg_website", "", "Link to your website");
-	ConVar g_cFeedbackLink = CreateConVar("sm_msg_feedback", "", "Link to your feedback URL");
+	g_cServerLink = CreateConVar("sm_msg_server", "", "URL to your CS:GO server");
+	g_cWebsiteLink = CreateConVar("sm_msg_website", "", "Link to your website");
+	g_cFeedbackLink = CreateConVar("sm_msg_feedback", "", "Link to your feedback URL");
 	// https://forms.gle/7L3X6zedh4PuwNEU6
 	
 	AutoExecConfig(true, "csgo-welcome");
-	g_cTextColor.GetString(textColor, sizeof(textColor));
-	g_cLinkTextColor.GetString(linkTextColor, sizeof(linkTextColor));
-	g_cSeparatorColor.GetString(separatorColor, sizeof(separatorColor));
-	g_cServerNameTextColor.GetString(serverNameTextColor, sizeof(serverNameTextColor));
-	g_cPlayerNameTextColor.GetString(playerNameTextColor, sizeof(playerNameTextColor));
-
-	g_cServerDisplayName.GetString(serverDisplayName, sizeof(serverDisplayName));
-	g_cServerLink.GetString(sServerLink, sizeof(sServerLink));
-	g_cWebsiteLink.GetString(sWebsiteLink, sizeof(sWebsiteLink));
 
 	LoadTranslations("csgo-welcome.phrases");
 	HookEvent("player_spawn", Event_OnPlayerSpawn);
@@ -86,16 +80,29 @@ public void Print_Separator(int client)
 {
 	char separatorColor[128];
 	g_cSeparatorColor.GetString(separatorColor, sizeof(separatorColor));
-
-	char message[128];
-	Format(message, sizeof(message), "{grey}%s{default}", separator);
-	CFormatColor(message, sizeof(message));
-	CPrintToChat(client, "%s", message);
+	CPrintToChat(client, "%t", "Separator", separatorColor);
 }
 
-public void Print_Title(int client)
+public void Print_Welcome_Line(int client)
 {
+	char textColor[128];
+	char linkTextColor[128];
+	char serverNameTextColor[128];
+	char playerNameTextColor[128];
+	char serverDisplayName[128];
 
+	g_cTextColor.GetString(textColor, sizeof(textColor));
+	g_cLinkTextColor.GetString(linkTextColor, sizeof(linkTextColor));
+	g_cServerNameTextColor.GetString(serverNameTextColor, sizeof(serverNameTextColor));
+	g_cPlayerNameTextColor.GetString(playerNameTextColor, sizeof(playerNameTextColor));
+	g_cServerDisplayName.GetString(serverDisplayName, sizeof(serverDisplayName));
+
+	char clientName[128];
+	if (!GetClientName(client, clientName, sizeof(clientName))) {
+		LogError("Unable to get client name for ID: %d", client);
+		return;
+	}
+	CPrintToChat(client, "%t", "Welcome_Line", textColor, serverNameTextColor, serverDisplayName, textColor, playerNameTextColor, clientName, textColor);
 }
 
 public Action Timer_DelaySpawn(Handle timer, int clientId)
@@ -111,20 +118,9 @@ public Action Timer_DelaySpawn(Handle timer, int clientId)
 		return Plugin_Continue;
 	}
 
-	char textColor[128];
-	char linkTextColor[128];
-	char serverNameTextColor[128];
-	char playerNameTextColor[128];
-
-	char serverDisplayName[128];
-	char sServerLink[128];
-	char sWebsiteLink[128];
-
-
-	
 	Print_Separator(client);
-	CPrintToChat(client, "%t", "CLine1", textColor, serverNameTextColor, serverDisplayName, playerNameTextColor, clientName);
-	CPrintToChat(client, "%t", "CLine2", textColor, linkTextColor, sServerLink);
+	Print_Welcome_Line(client);
+	//CPrintToChat(client, "%t", "CLine2", textColor, linkTextColor, serverLink);
 	Print_Separator(client);
 	g_bMessagesShown[client] = true;
 	
