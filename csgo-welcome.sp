@@ -9,6 +9,8 @@
 
 //Globals
 bool g_bMessagesShown[MAXPLAYERS + 1];
+Handle FeedbackTimers[MAXPLAYERS + 1];
+Handle CommandsTimer;
 
 ConVar g_cTextColor;
 ConVar g_cSeparatorColor;
@@ -23,7 +25,6 @@ ConVar g_cFeedbackLink;
 
 char serverLink[128];
 char websiteLink[128];
-char feedbackLink[128];
 
 public Plugin myinfo = 
 {
@@ -48,11 +49,12 @@ public void OnPluginStart()
 	g_cServerLink = CreateConVar("sm_msg_server", "", "URL to your CS:GO server");
 	g_cWebsiteLink = CreateConVar("sm_msg_website", "", "Link to your website");
 	g_cFeedbackLink = CreateConVar("sm_msg_feedback", "", "Link to your feedback URL");
-	// https://forms.gle/7L3X6zedh4PuwNEU6
 	
 	AutoExecConfig(true, "csgo-welcome");
 
 	LoadTranslations("csgo-welcome.phrases");
+
+	RegConsoleCmd("feedback", Command_Feedback);
 	HookEvent("player_spawn", Event_OnPlayerSpawn);
 }
 
@@ -61,6 +63,9 @@ public void OnMapStart()
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		g_bMessagesShown[i] = false;
+	}
+	if (CommandsTimer == null) {
+		CommandsTimer = CreateTimer(30.0, Timer_Commands, 0, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -74,6 +79,9 @@ public void Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadca
 	}
 	
 	CreateTimer(0.2, Timer_DelaySpawn, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	if (FeedbackTimers[client] == null) {
+		FeedbackTimers[client] = CreateTimer(180.0, Timer_Feedback, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+	}
 }
 
 public void Print_Separator(int client)
@@ -105,6 +113,15 @@ public void Print_Welcome_Line(int client)
 	CPrintToChat(client, "%t", "Welcome_Line", textColor, serverNameTextColor, serverDisplayName, textColor, playerNameTextColor, clientName, textColor);
 }
 
+public Action Timer_Commands(Handle timer)
+{
+	char textColor[128];
+
+	g_cTextColor.GetString(textColor, sizeof(textColor));
+	CPrintToChatAll("%t", "Commands_Line", textColor);
+	return Plugin_Handled;
+}
+
 public Action Timer_DelaySpawn(Handle timer, int clientId)
 {
 	int client = GetClientOfUserId(clientId);
@@ -124,10 +141,52 @@ public Action Timer_DelaySpawn(Handle timer, int clientId)
 	Print_Separator(client);
 	g_bMessagesShown[client] = true;
 	
-	return Plugin_Continue;
+	return Plugin_Handled;
+}
+
+public void Print_Feedback(int client)
+{
+	char textColor[128];
+	char feedbackLink[128];
+	char linkTextColor[128];
+
+	g_cFeedbackLink.GetString(feedbackLink, sizeof(feedbackLink));
+	g_cTextColor.GetString(textColor, sizeof(textColor));
+	g_cLinkTextColor.GetString(linkTextColor, sizeof(linkTextColor));
+
+	CPrintToChat(client, "%t", "Feedback_Line", textColor, linkTextColor, feedbackLink);
+}
+
+public Action Command_Feedback(int client, int args)
+{
+	if (client == 0 || !IsPlayerAlive(client))
+	{
+		return Plugin_Continue;
+	}
+
+	Print_Feedback(client);
+	return Plugin_Handled;
+}
+
+public Action Timer_Feedback(Handle timer, int clientId)
+{
+	int client = GetClientOfUserId(clientId);
+	
+	if (client == 0 || !IsPlayerAlive(client))
+	{
+		return Plugin_Continue;
+	}
+	char clientName[128];
+	if (!GetClientName(client, clientName, sizeof(clientName))) {
+		return Plugin_Continue;
+	}
+
+	Command_Feedback(client, 0);
+	return Plugin_Handled;
 }
 
 public void OnClientDisconnect(int client)
 {
 	g_bMessagesShown[client] = false;
+	delete FeedbackTimers[client];
 }

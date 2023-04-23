@@ -15,6 +15,16 @@
 		"#format"		"{1:s}{2:s}{3:s}"
 		"en"			"{1}Visit: {2}{3}"
 	}
+	"Feedback_Line"
+	{
+		"#format"		"{1:s}{2:s}{3:s}"
+		"en"			"{{1}}Your feedback is super valuable to us. Why don't you fill out the Google Form and we will get your feature in at record time? {{2}} {3}"
+	}
+	"Commands_Line"
+	{
+		"#format"		"{1:s}"
+		"en"			"{{1}}Server Commands:{red} !knife !gloves !ws !rs !agent !rank"
+	}
 	"Rules1"
 	{
 		"en"			"Rules |  Toxicity is strictly prohibited."
